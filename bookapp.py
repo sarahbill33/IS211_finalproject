@@ -29,3 +29,17 @@ class Books(db.Model):
         self.title = title
         self.author = author
         self.pagecount = pagecount
+
+
+@app.route('/', methods=['POST', 'GET'])
+def login():
+    title = "Login"
+    if request.method == 'POST':
+        userid = request.form['userid']
+        password = request.form['password']
+        if userid == 'admin' and password == 'password':
+            return redirect('/dashboard')
+        else:
+            return render_template("index.html", title=title)
+    else:
+        return render_template("index.html", title=title)
