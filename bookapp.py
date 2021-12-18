@@ -53,15 +53,16 @@ def searchbook():
     title = "Searchbook"
     if request.method == 'POST':
         isbn = request.form['ISBN']
-#        try:
-        r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
-#            data = r.read()
-        data = json.load(r)
-        response = data["items"][0]["volumeInfo"]["title"]
-        return render_template("searchbook.html", title=title, response=response)
-#        except:
-#            response = "That ISBN does not exist in our records. Try again."
-#            return render_template("searchbook.html", title=title, response=response)
+        try:
+            r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
+            data = json.load(r)
+            btitle = data["items"][0]["volumeInfo"]["title"]
+            author = data["items"][0]["volumeInfo"]["authors"]
+            pagecount = data["items"][0]["volumeInfo"]["pageCount"]
+            return render_template("searchbook.html", title=btitle, author=author, pagecount=pagecount)
+        except:
+            error = "That ISBN does not exist in our records. Try again."
+            return render_template("searchbook.html", error=error)
     else:
         return render_template("searchbook.html", title=title)
 
@@ -70,11 +71,10 @@ def searchbook():
 def addbook():
     title = "Addbook"
     if request.method == 'POST':
-        title = "title"
+        btitle = "title"
         author = "author"
         pagecount = 1
-        avgrating = 5
-        newbook = Books(title=title, author=author, pagecount=pagecount, avgrating=avgrating)
+        newbook = Books(title=btitle, author=author, pagecount=pagecount)
         try:
             db.session.add(newbook)
             db.session.commit()

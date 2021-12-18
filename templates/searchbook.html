@@ -31,7 +31,9 @@
         </div>
     <br/><br/>
         <div>
-            <h4>{{ response }}</h4>
+            <h4>{{ title }} by {{ author }} , {{ pagecount }} pages</h4>
+            <br/>
+            <h4>{{ error }}</h4>
             <form action="/addbook" METHOD="POST">
                 <input type="submit" value="Add" name="add">
             </form>
