@@ -11,6 +11,7 @@
 import urllib.request
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+import json
 
 
 app = Flask(__name__)
@@ -52,13 +53,15 @@ def searchbook():
     title = "Searchbook"
     if request.method == 'POST':
         isbn = request.form['ISBN']
-        try:
-            r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
-            response = r.read()
-            return response
-        except:
-            response = "That ISBN does not exist in our records. Try again."
-            return response
+#        try:
+        r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
+#            data = r.read()
+        data = json.load(r)
+        response = data["items"][0]["volumeInfo"]["title"]
+        return render_template("searchbook.html", title=title, response=response)
+#        except:
+#            response = "That ISBN does not exist in our records. Try again."
+#            return render_template("searchbook.html", title=title, response=response)
     else:
         return render_template("searchbook.html", title=title)
 
