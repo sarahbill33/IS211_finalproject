@@ -25,13 +25,20 @@ class Books(db.Model):
     title = db.Column(db.String(200), nullable=False)
     author = db.Column(db.String(200), nullable=False)
     pagecount = db.Column(db.Integer, nullable=False)
-    avgrating = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, title, author, pagecount, avgrating):
+    def __init__(self, title, author, pagecount):
         self.title = title
         self.author = author
         self.pagecount = pagecount
-        self.avgrating = avgrating
+
+
+class Isbn(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    isbn = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, isbn):
+        self.isbn = isbn
+
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -41,11 +48,18 @@ def login():
         userid = request.form['userid']
         password = request.form['password']
         if userid == 'admin' and password == 'password':
-            return redirect('/searchbook')
+            return redirect('/dashboard')
         else:
             return render_template("index.html", title=title)
     else:
         return render_template("index.html", title=title)
+
+
+@app.route('/dashboard', methods=['POST', 'GET'])
+def displayall():
+    title = "Books I Own"
+    books = Books.query.order_by(Books.id)
+    return render_template("dashboard.html", books=books, title=title)
 
 
 @app.route('/searchbook', methods=['POST', 'GET'])
@@ -53,11 +67,14 @@ def searchbook():
     title = "Searchbook"
     if request.method == 'POST':
         isbn = request.form['ISBN']
+        newisbn = Isbn(isbn=isbn)
+        db.session.add(newisbn)
+        db.session.commit()
         try:
             r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
             data = json.load(r)
             btitle = data["items"][0]["volumeInfo"]["title"]
-            author = data["items"][0]["volumeInfo"]["authors"]
+            author = data["items"][0]["volumeInfo"]["authors"][0]
             pagecount = data["items"][0]["volumeInfo"]["pageCount"]
             return render_template("searchbook.html", title=btitle, author=author, pagecount=pagecount)
         except:
@@ -71,16 +88,24 @@ def searchbook():
 def addbook():
     title = "Addbook"
     if request.method == 'POST':
-        btitle = "title"
-        author = "author"
-        pagecount = 1
+        isbn = '9780553897920'
+#        try:
+        r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
+        data = json.load(r)
+        btitle = data["items"][0]["volumeInfo"]["title"]
+        author = data["items"][0]["volumeInfo"]["authors"][0]
+        pagecount = data["items"][0]["volumeInfo"]["pageCount"]
         newbook = Books(title=btitle, author=author, pagecount=pagecount)
-        try:
-            db.session.add(newbook)
-            db.session.commit()
-            return redirect('/searchbook')
-        except:
-            return "There was an error adding your book"
+#            try:
+        db.session.add(newbook)
+        db.session.commit()
+        return redirect('/searchbook')
+#            except:
+#                error = "There was an error adding your book."
+#                return render_template("searchbook.html", error=error)
+#        except:
+#            error = "There was an error adding your book."
+#            return render_template("searchbook.html", error=error)
     else:
         return render_template("searchbook.html", title=title)
 
