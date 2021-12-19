@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Books I Own</title>
+    <title>Search for a Book</title>
 </head>
 <body>
     {% block content %}
@@ -16,10 +16,9 @@
         </div>
     <br/><br/>
         <div>
-            <h4>{{ title }} by {{ author }} , {{ pagecount }} pages</h4>
+            <h4>{{ sentence }}</h4>
             <h4>{{ error }}</h4>
             <form action="/addbook" METHOD="POST">
-                <input type="text" placeholder="Enter ISBN again to Add" name="ISBN">
                 <input type="submit" value="Add this book to My Books" name="add">
             </form>
         </div>

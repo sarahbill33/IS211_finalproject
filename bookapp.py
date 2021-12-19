@@ -11,6 +11,7 @@
 import urllib.request
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import select
 import json
 
 
@@ -67,16 +68,17 @@ def searchbook():
     title = "Searchbook"
     if request.method == 'POST':
         isbn = request.form['ISBN']
-        newisbn = Isbn(isbn=isbn)
-        db.session.add(newisbn)
-        db.session.commit()
         try:
+            newisbn = Isbn(isbn=isbn)
+            db.session.add(newisbn)
+            db.session.commit()
             r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
             data = json.load(r)
             btitle = data["items"][0]["volumeInfo"]["title"]
             author = data["items"][0]["volumeInfo"]["authors"][0]
             pagecount = data["items"][0]["volumeInfo"]["pageCount"]
-            return render_template("searchbook.html", title=btitle, author=author, pagecount=pagecount)
+            sentence = f'{btitle} by {author}, {pagecount} pages'
+            return render_template("searchbook.html", sentence=sentence)
         except:
             error = "That ISBN does not exist in our records. Try again."
             return render_template("searchbook.html", error=error)
@@ -88,24 +90,20 @@ def searchbook():
 def addbook():
     title = "Addbook"
     if request.method == 'POST':
-        isbn = request.form['ISBN']
-#        try:
-        r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
-        data = json.load(r)
-        btitle = data["items"][0]["volumeInfo"]["title"]
-        author = data["items"][0]["volumeInfo"]["authors"][0]
-        pagecount = data["items"][0]["volumeInfo"]["pageCount"]
-        newbook = Books(title=btitle, author=author, pagecount=pagecount)
-#            try:
-        db.session.add(newbook)
-        db.session.commit()
-        return redirect('/searchbook')
-#            except:
-#                error = "There was an error adding your book."
-#                return render_template("searchbook.html", error=error)
-#        except:
-#            error = "There was an error adding your book."
-#            return render_template("searchbook.html", error=error)
+        isbn = db.session.query(Isbn.isbn).order_by(Isbn.id.desc()).first().isbn
+        try:
+            r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
+            data = json.load(r)
+            btitle = data["items"][0]["volumeInfo"]["title"]
+            author = data["items"][0]["volumeInfo"]["authors"][0]
+            pagecount = data["items"][0]["volumeInfo"]["pageCount"]
+            newbook = Books(title=btitle, author=author, pagecount=pagecount)
+            db.session.add(newbook)
+            db.session.commit()
+            return redirect('/searchbook')
+        except:
+            error = "There was an error adding your book."
+            return render_template("searchbook.html", error=error)
     else:
         return render_template("searchbook.html", title=title)
 
