@@ -7,7 +7,7 @@
 <body>
     <h4>BOOKS I OWN</h4>
     </br></br>
-    <table>
+    <table id="t">
         <thead>
             <tr><th>ID</th><th>Title</th><th>Author</th><th>Page Count</th></tr>
         </thead>
@@ -17,6 +17,12 @@
         {% endfor %}
         </tbody>
     </table>
+    <br/><br/>
+    <h4>Enter the ID of the book you want to delete</h4>
+    <form action="/dashboard" METHOD="POST">
+        <input type="Text" name="ID">
+        <input type="Submit" value="Delete">
+    </form>
     <br/><br/>
     <a href="/searchbook">Search for a book to add</a>
 </body>

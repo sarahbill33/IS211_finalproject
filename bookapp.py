@@ -60,7 +60,14 @@ def login():
 def displayall():
     title = "Books I Own"
     books = Books.query.order_by(Books.id)
-    return render_template("dashboard.html", books=books, title=title)
+    if request.method == 'POST':
+        bdelete = request.form['ID']
+        db.session.query(Books).filter(Books.id == bdelete).delete()
+        db.session.commit()
+        return render_template("dashboard.html", books=books, title=title)
+    else:
+        return render_template("dashboard.html", books=books, title=title)
+
 
 
 @app.route('/searchbook', methods=['POST', 'GET'])
