@@ -2,6 +2,7 @@
 
 To create the book application I decided to start with the teacher app model we used in a previous week.
 I broke down the requirements into 4 main methods: displaying books, searching books, adding books, and deleting books.
+
 -- For displaying the books I used a python 'for loop' embedded in the html to iterate through the Books table.
 
 -- For searching books I saved the user input (ISBN) as a variable, and used it within the Google Books API call.
