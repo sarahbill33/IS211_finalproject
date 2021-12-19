@@ -88,7 +88,7 @@ def searchbook():
 def addbook():
     title = "Addbook"
     if request.method == 'POST':
-        isbn = '9780553897920'
+        isbn = request.form['ISBN']
 #        try:
         r = urllib.request.urlopen(f'https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}')
         data = json.load(r)
